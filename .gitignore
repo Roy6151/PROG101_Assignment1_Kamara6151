@@ -1,0 +1,4 @@
+node_modules/
+*.pdf
+page-*.jpg
+puppeteer-config.json
