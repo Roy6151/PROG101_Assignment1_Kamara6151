@@ -37,6 +37,13 @@ to any alternative academic support. Full problem analysis and rationale to foll
 **SDG 4 — Quality Education** (Targets 4.1 and 4.5: equitable access to quality education and
 elimination of rural/urban disparities).
 
+## Repository Contents
+
+| Path | Description |
+|---|---|
+| `diagrams/EduLink.drawio` | **Flowchart built in diagrams.net (Draw.io)** — one of the three flowcharting tools named in the assignment brief. Open it free at https://app.diagrams.net (File > Open From > Device) to view or edit |
+| `generate_drawio_flowchart.py` | Script used to generate `diagrams/EduLink.drawio` |
+
 ## Author
 
 - **Name:** Alieu Kamara
