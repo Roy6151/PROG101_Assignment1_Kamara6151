@@ -1,0 +1,222 @@
+===========================================================
+EduLink SL - Education Access and Resource Link System
+PSEUDOCODE
+===========================================================
+
+CONSTANTS
+    MAX_SEARCH_RADIUS_KM = 25
+    RADIUS_STEP_KM = 5
+    DISRUPTION_KEYWORDS = ["flooding", "school closed", "teacher strike",
+                            "no tutor present"]
+
+DATA TYPES
+    Student
+        studentID   : Integer
+        name        : String
+        age         : Integer
+        phone       : String
+        location    : String
+
+    LearningCenter
+        centerID        : Integer
+        name            : String
+        location        : String
+        tutorOnDuty     : Boolean
+        tutorSubject    : String
+        openSeats       : Integer
+        materialStock   : List of MaterialRecord
+
+    MaterialRecord
+        materialName : String
+        quantity     : Integer
+
+    Session
+        sessionID : Integer
+        studentID : Integer
+        centerID  : Integer
+        date      : Date
+        status    : String
+
+-----------------------------------------------------------
+MODULE mainMenu()
+-----------------------------------------------------------
+    DISPLAY "1. Check Tutor Availability"
+    DISPLAY "2. Check Study Material Stock"
+    DISPLAY "3. Book Tutoring Session"
+    DISPLAY "4. Report School Disruption"
+    GET userChoice
+    CALL routeRequest(userChoice)
+END MODULE
+
+-----------------------------------------------------------
+MODULE routeRequest(choice)
+-----------------------------------------------------------
+    IF choice = 1 THEN
+        CALL checkTutorAvailability()
+    ELSE IF choice = 2 THEN
+        CALL checkMaterialStock()
+    ELSE IF choice = 3 THEN
+        CALL bookTutoringSession()
+    ELSE IF choice = 4 THEN
+        CALL reportDisruption()
+    ELSE
+        DISPLAY "Invalid option, please try again"
+        CALL mainMenu()
+    END IF
+END MODULE
+
+-----------------------------------------------------------
+MODULE checkTutorAvailability()
+-----------------------------------------------------------
+    GET studentLocation
+    GET subjectNeeded
+    SET radius = RADIUS_STEP_KM
+    SET found = FALSE
+
+    WHILE (found = FALSE) AND (radius <= MAX_SEARCH_RADIUS_KM) DO
+        SET nearbyCenters = findCentersWithin(studentLocation, radius)
+        FOR EACH center IN nearbyCenters DO
+            IF center.tutorOnDuty = TRUE AND center.tutorSubject = subjectNeeded
+               AND center.openSeats > 0 THEN
+                DISPLAY center.name + " - " + center.openSeats + " seat(s) available"
+                SET found = TRUE
+            END IF
+        END FOR
+        IF found = FALSE THEN
+            SET radius = radius + RADIUS_STEP_KM
+        END IF
+    END WHILE
+
+    IF found = FALSE THEN
+        DISPLAY "No tutor availability found within " + MAX_SEARCH_RADIUS_KM + " km"
+    END IF
+    CALL logInteraction()
+END MODULE
+
+-----------------------------------------------------------
+MODULE checkMaterialStock()
+-----------------------------------------------------------
+    GET studentLocation
+    GET materialName
+    SET nearbyCenters = findCentersWithin(studentLocation, MAX_SEARCH_RADIUS_KM)
+    SET resultsFound = FALSE
+
+    FOR EACH center IN nearbyCenters DO
+        FOR EACH record IN center.materialStock DO
+            IF record.materialName = materialName AND record.quantity > 0 THEN
+                DISPLAY center.name + " has " + record.quantity + " copies of " + materialName
+                SET resultsFound = TRUE
+            END IF
+        END FOR
+    END FOR
+
+    IF resultsFound = FALSE THEN
+        DISPLAY materialName + " not currently in stock nearby"
+    END IF
+    CALL logInteraction()
+END MODULE
+
+-----------------------------------------------------------
+MODULE bookTutoringSession()
+-----------------------------------------------------------
+    GET studentPhone
+    SET student = findStudentByPhone(studentPhone)
+
+    IF student = NULL THEN
+        CALL registerStudent()
+        SET student = findStudentByPhone(studentPhone)
+    END IF
+
+    GET preferredCenterID, preferredDate
+    SET center = findCenterByID(preferredCenterID)
+
+    IF center.openSeats > 0 THEN
+        SET newSession.sessionID = generateID()
+        SET newSession.studentID = student.studentID
+        SET newSession.centerID = center.centerID
+        SET newSession.date = preferredDate
+        SET newSession.status = "Confirmed"
+        SET center.openSeats = center.openSeats - 1
+        CALL sendNotification(student.phone,
+             "Tutoring session confirmed at " + center.name + " on " + preferredDate)
+    ELSE
+        DISPLAY "No seats available on that date. Suggesting next available date..."
+        CALL suggestNextAvailable(center)
+    END IF
+    CALL logInteraction()
+END MODULE
+
+-----------------------------------------------------------
+MODULE reportDisruption()
+-----------------------------------------------------------
+    GET studentLocation, disruptionDescription
+    SET isDisruption = FALSE
+
+    FOR EACH keyword IN DISRUPTION_KEYWORDS DO
+        IF disruptionDescription CONTAINS keyword THEN
+            SET isDisruption = TRUE
+        END IF
+    END FOR
+
+    IF isDisruption = TRUE THEN
+        SET radius = RADIUS_STEP_KM
+        SET found = FALSE
+
+        WHILE (found = FALSE) AND (radius <= MAX_SEARCH_RADIUS_KM) DO
+            SET nearbyCenters = findCentersWithin(studentLocation, radius)
+            FOR EACH center IN nearbyCenters DO
+                IF center.tutorOnDuty = TRUE THEN
+                    DISPLAY "REDIRECT: Nearest open center is " + center.name
+                    CALL sendNotification(center.phone,
+                         "Incoming redirected student from " + studentLocation)
+                    SET found = TRUE
+                END IF
+            END FOR
+            IF found = FALSE THEN
+                SET radius = radius + RADIUS_STEP_KM
+            END IF
+        END WHILE
+
+        IF found = FALSE THEN
+            DISPLAY "No open learning center found. Contact District Education Office."
+        END IF
+    ELSE
+        DISPLAY "No disruption keyword detected. Redirecting to Book Tutoring Session."
+        CALL bookTutoringSession()
+    END IF
+    CALL logInteraction()
+END MODULE
+
+-----------------------------------------------------------
+MODULE registerStudent()
+-----------------------------------------------------------
+    GET name, age, phone, location
+    SET newStudent.studentID = generateID()
+    SET newStudent.name = name
+    SET newStudent.age = age
+    SET newStudent.phone = phone
+    SET newStudent.location = location
+    STORE newStudent
+    DISPLAY "Registration successful"
+END MODULE
+
+-----------------------------------------------------------
+MODULE sendNotification(phone, message)
+-----------------------------------------------------------
+    SEND SMS TO phone WITH message
+END MODULE
+
+-----------------------------------------------------------
+MODULE logInteraction()
+-----------------------------------------------------------
+    STORE timestamp, userChoice, outcome IN interactionLog
+    (used later for District Education Office reporting and resource planning)
+END MODULE
+
+-----------------------------------------------------------
+MAIN
+-----------------------------------------------------------
+START
+    CALL mainMenu()
+END
+===========================================================

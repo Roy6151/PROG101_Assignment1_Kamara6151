@@ -44,6 +44,23 @@ elimination of rural/urban disparities).
 | `diagrams/EduLink.drawio` | **Flowchart built in diagrams.net (Draw.io)** — one of the three flowcharting tools named in the assignment brief. Contains five diagrams as separate pages/tabs in one file. Open it free at https://app.diagrams.net (File > Open From > Device) to view or edit |
 | `diagrams/fig1_drawio.png` … `fig5_drawio.png` | Rendered PNG export of each Draw.io page — one overview diagram (Figure 1) plus one full-page diagram per module (Figures 2-5), split up so every box and label stays legible when printed |
 | `generate_drawio_flowchart.py` | Script used to generate `diagrams/EduLink.drawio` and the five rendered PNGs |
+| `docs/pseudocode.txt` | Pseudocode for all system modules (plain text) |
+
+## System Modules (Modular Design)
+
+| Module | Purpose |
+|---|---|
+| `mainMenu()` | Displays the menu and routes the user's choice |
+| `routeRequest(choice)` | Decision structure that calls the correct module |
+| `checkTutorAvailability()` | Searches outward for a centre with a tutor on duty and an open seat |
+| `checkMaterialStock()` | Searches nearby centres' stock records for a named study material |
+| `bookTutoringSession()` | Registers the student if needed and books a confirmed seat |
+| `reportDisruption()` | Flags disruption keywords and searches outward for the nearest staffed centre |
+| `registerStudent()` | Creates a new student record |
+| `sendNotification(phone, msg)` | Sends a confirmation or alert SMS |
+| `logInteraction()` | Stores each session's outcome for reporting |
+
+Full pseudocode: [`docs/pseudocode.txt`](docs/pseudocode.txt)
 
 ## Author
 
