@@ -1,0 +1,199 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="2.11">
+    <attributes>
+        <attribute name="name" value="EduLink"/>
+        <attribute name="authors" value="Alieu Kamara"/>
+        <attribute name="about" value="Education Access and Resource Link System - PROG101 Assignment 1"/>
+        <attribute name="saved" value="2026-10-12 20:47:30"/>
+        <attribute name="created" value="QWxpZXUgS2FtYXJhO0xJTUtPS1dJTkc7MjAyNi0xMC0xMjsyMDo0NzozMDsx"/>
+        <attribute name="edited" value="QWxpZXUgS2FtYXJhO0xJTUtPS1dJTkc7MjAyNi0xMC0xMjsyMDo0NzozMDsx"/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <comment text="EduLink SL - sample learning-center dataset (nearest-first, Mathematics tutor)."/>
+            <comment text="In production this would be populated from a live centers database."/>
+            <declare name="centerName" type="String" array="True" size="5"/>
+            <declare name="centerTutorOnDuty" type="Boolean" array="True" size="5"/>
+            <declare name="centerOpenSeats" type="Integer" array="True" size="5"/>
+            <declare name="centerPastPaperStock" type="Integer" array="True" size="5"/>
+            <declare name="choice" type="Integer" array="False" size=""/>
+            <assign variable="centerName[0]" expression="&quot;Njala Community School&quot;"/>
+            <assign variable="centerTutorOnDuty[0]" expression="true"/>
+            <assign variable="centerOpenSeats[0]" expression="0"/>
+            <assign variable="centerPastPaperStock[0]" expression="0"/>
+            <assign variable="centerName[1]" expression="&quot;Gondama Learning Hub&quot;"/>
+            <assign variable="centerTutorOnDuty[1]" expression="true"/>
+            <assign variable="centerOpenSeats[1]" expression="4"/>
+            <assign variable="centerPastPaperStock[1]" expression="0"/>
+            <assign variable="centerName[2]" expression="&quot;Kenema Secondary Resource Center&quot;"/>
+            <assign variable="centerTutorOnDuty[2]" expression="true"/>
+            <assign variable="centerOpenSeats[2]" expression="6"/>
+            <assign variable="centerPastPaperStock[2]" expression="15"/>
+            <assign variable="centerName[3]" expression="&quot;Bo Community Learning Center&quot;"/>
+            <assign variable="centerTutorOnDuty[3]" expression="false"/>
+            <assign variable="centerOpenSeats[3]" expression="3"/>
+            <assign variable="centerPastPaperStock[3]" expression="0"/>
+            <assign variable="centerName[4]" expression="&quot;Serabu Education Point&quot;"/>
+            <assign variable="centerTutorOnDuty[4]" expression="false"/>
+            <assign variable="centerOpenSeats[4]" expression="0"/>
+            <assign variable="centerPastPaperStock[4]" expression="8"/>
+            <output expression="&quot;====================================&quot;" newline="True"/>
+            <output expression="&quot;  EduLink SL - Education Access&quot;" newline="True"/>
+            <output expression="&quot;      and Resource Link System&quot;" newline="True"/>
+            <output expression="&quot;====================================&quot;" newline="True"/>
+            <output expression="&quot;1. Check Tutor Availability&quot;" newline="True"/>
+            <output expression="&quot;2. Check Study Material Stock&quot;" newline="True"/>
+            <output expression="&quot;3. Book Tutoring Session&quot;" newline="True"/>
+            <output expression="&quot;4. Report School Disruption&quot;" newline="True"/>
+            <output expression="&quot;Enter your choice (1-4):&quot;" newline="True"/>
+            <input variable="choice"/>
+            <if expression="choice = 1">
+                <then>
+                    <call expression="checkTutorAvailability(centerName, centerTutorOnDuty, centerOpenSeats)"/>
+                </then>
+                <else>
+                    <if expression="choice = 2">
+                        <then>
+                            <call expression="checkMaterialStock(centerName, centerPastPaperStock)"/>
+                        </then>
+                        <else>
+                            <if expression="choice = 3">
+                                <then>
+                                    <call expression="bookTutoringSession(centerName, centerOpenSeats)"/>
+                                </then>
+                                <else>
+                                    <if expression="choice = 4">
+                                        <then>
+                                            <call expression="reportDisruption(centerName, centerTutorOnDuty)"/>
+                                        </then>
+                                        <else>
+                                            <output expression="&quot;Invalid option. Please run again and choose 1-4.&quot;" newline="True"/>
+                                        </else>
+                                    </if>
+                                </else>
+                            </if>
+                        </else>
+                    </if>
+                </else>
+            </if>
+        </body>
+    </function>
+    <function name="checkTutorAvailability" type="None" variable="">
+        <parameters>
+            <parameter name="names" type="String" array="True"/>
+            <parameter name="tutorOnDuty" type="Boolean" array="True"/>
+            <parameter name="openSeats" type="Integer" array="True"/>
+        </parameters>
+        <body>
+            <declare name="i" type="Integer" array="False" size=""/>
+            <declare name="found" type="Boolean" array="False" size=""/>
+            <assign variable="i" expression="0"/>
+            <assign variable="found" expression="false"/>
+            <output expression="&quot;Searching nearby centers for a Mathematics tutor and an open seat...&quot;" newline="True"/>
+            <while expression="i &lt;= 4 &amp;&amp; found = false">
+                <if expression="tutorOnDuty[i] = true &amp;&amp; openSeats[i] &gt; 0">
+                    <then>
+                        <output expression="names[i] &amp; &quot; - &quot; &amp; openSeats[i] &amp; &quot; seat(s) available&quot;" newline="True"/>
+                        <assign variable="found" expression="true"/>
+                    </then>
+                    <else/>
+                </if>
+                <assign variable="i" expression="i + 1"/>
+            </while>
+            <if expression="found = false">
+                <then>
+                    <output expression="&quot;No centre with a tutor and an open seat was found nearby.&quot;" newline="True"/>
+                </then>
+                <else/>
+            </if>
+        </body>
+    </function>
+    <function name="checkMaterialStock" type="None" variable="">
+        <parameters>
+            <parameter name="names" type="String" array="True"/>
+            <parameter name="stock" type="Integer" array="True"/>
+        </parameters>
+        <body>
+            <declare name="i" type="Integer" array="False" size=""/>
+            <declare name="anyFound" type="Boolean" array="False" size=""/>
+            <assign variable="anyFound" expression="false"/>
+            <output expression="&quot;Checking nearby centers for BECE Mathematics Past Papers...&quot;" newline="True"/>
+            <for variable="i" start="0" end="4" direction="inc" step="1">
+                <if expression="stock[i] &gt; 0">
+                    <then>
+                        <output expression="names[i] &amp; &quot; has &quot; &amp; stock[i] &amp; &quot; copies in stock&quot;" newline="True"/>
+                        <assign variable="anyFound" expression="true"/>
+                    </then>
+                    <else/>
+                </if>
+            </for>
+            <if expression="anyFound = false">
+                <then>
+                    <output expression="&quot;Past papers are not currently in stock at any nearby centre.&quot;" newline="True"/>
+                </then>
+                <else/>
+            </if>
+        </body>
+    </function>
+    <function name="bookTutoringSession" type="None" variable="">
+        <parameters>
+            <parameter name="names" type="String" array="True"/>
+            <parameter name="openSeats" type="Integer" array="True"/>
+        </parameters>
+        <body>
+            <declare name="centerNumber" type="Integer" array="False" size=""/>
+            <declare name="idx" type="Integer" array="False" size=""/>
+            <output expression="&quot;1=Njala  2=Gondama  3=Kenema  4=Bo Community  5=Serabu&quot;" newline="True"/>
+            <output expression="&quot;Enter centre number to book (1-5):&quot;" newline="True"/>
+            <input variable="centerNumber"/>
+            <assign variable="idx" expression="centerNumber - 1"/>
+            <if expression="openSeats[idx] &gt; 0">
+                <then>
+                    <output expression="&quot;Tutoring session confirmed at &quot; &amp; names[idx]" newline="True"/>
+                </then>
+                <else>
+                    <output expression="&quot;No seats available at &quot; &amp; names[idx] &amp; &quot;. Suggesting the next available centre...&quot;" newline="True"/>
+                </else>
+            </if>
+        </body>
+    </function>
+    <function name="reportDisruption" type="None" variable="">
+        <parameters>
+            <parameter name="names" type="String" array="True"/>
+            <parameter name="tutorOnDuty" type="Boolean" array="True"/>
+        </parameters>
+        <body>
+            <declare name="isDisruption" type="Boolean" array="False" size=""/>
+            <declare name="i" type="Integer" array="False" size=""/>
+            <declare name="found" type="Boolean" array="False" size=""/>
+            <output expression="&quot;Is your school disrupted right now? (true = yes / false = no):&quot;" newline="True"/>
+            <input variable="isDisruption"/>
+            <if expression="isDisruption = true">
+                <then>
+                    <assign variable="i" expression="0"/>
+                    <assign variable="found" expression="false"/>
+                    <while expression="i &lt;= 4 &amp;&amp; found = false">
+                        <if expression="tutorOnDuty[i] = true">
+                            <then>
+                                <output expression="&quot;REDIRECT: Nearest open centre is &quot; &amp; names[i]" newline="True"/>
+                                <assign variable="found" expression="true"/>
+                            </then>
+                            <else/>
+                        </if>
+                        <assign variable="i" expression="i + 1"/>
+                    </while>
+                    <if expression="found = false">
+                        <then>
+                            <output expression="&quot;No open centre available. Contact the District Education Office.&quot;" newline="True"/>
+                        </then>
+                        <else/>
+                    </if>
+                </then>
+                <else>
+                    <output expression="&quot;No disruption detected. Please use Book Tutoring Session instead.&quot;" newline="True"/>
+                </else>
+            </if>
+        </body>
+    </function>
+</flowgorithm>
