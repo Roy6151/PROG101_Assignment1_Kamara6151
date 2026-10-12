@@ -10,6 +10,18 @@ const FONT = "Tahoma";
 const BODY_SIZE = 20; // 10pt in half-points
 const LINE_SPACING = { line: 276, lineRule: "auto" }; // 1.15 lines
 
+// ---------- palette ----------
+// A deep-forest / sage palette, deliberately distinct from the navy-blue
+// theme used elsewhere, so this report reads as its own visual design.
+const PRIMARY = "1B4332";   // headings, cover titles
+const SECONDARY = "2D6A4F"; // sub-headings, table header fill, accent bars
+const TERTIARY = "40704A";  // h3 / sub-sub-headings
+const ACCENT = "B45309";    // "insert screenshot" callouts
+const BORDER = "A9C7B5";    // table borders / rules
+const TINT = "EAF4EE";      // light shaded cells / caption boxes
+const STRIPE = "F4FAF6";    // alternating table row shading
+const MUTED = "6B8F7C";     // header/footer running text
+
 // ---------- helpers ----------
 function body(text, opts = {}) {
   return new Paragraph({
@@ -31,8 +43,9 @@ function bulletPara(text, opts = {}) {
 function h1(text) {
   return new Paragraph({
     heading: HeadingLevel.HEADING_1,
-    spacing: { before: 320, after: 160 },
-    children: [new TextRun({ text, font: FONT, bold: true, size: 28, color: "1F3864" })],
+    spacing: { before: 320, after: 200 },
+    border: { bottom: { style: BorderStyle.SINGLE, size: 10, color: SECONDARY, space: 6 } },
+    children: [new TextRun({ text, font: FONT, bold: true, size: 28, color: PRIMARY })],
   });
 }
 
@@ -40,7 +53,10 @@ function h2(text) {
   return new Paragraph({
     heading: HeadingLevel.HEADING_2,
     spacing: { before: 240, after: 120 },
-    children: [new TextRun({ text, font: FONT, bold: true, size: 24, color: "2E5395" })],
+    children: [
+      new TextRun({ text: "▎ ", font: FONT, bold: true, size: 24, color: SECONDARY }),
+      new TextRun({ text, font: FONT, bold: true, size: 24, color: SECONDARY }),
+    ],
   });
 }
 
@@ -48,7 +64,7 @@ function h3(text) {
   return new Paragraph({
     heading: HeadingLevel.HEADING_3,
     spacing: { before: 180, after: 100 },
-    children: [new TextRun({ text, font: FONT, bold: true, italics: true, size: 22, color: "444444" })],
+    children: [new TextRun({ text, font: FONT, bold: true, italics: true, size: 22, color: TERTIARY })],
   });
 }
 
@@ -68,7 +84,7 @@ function labelValueRow(label, value) {
     children: [
       new TableCell({
         width: { size: 30, type: WidthType.PERCENTAGE },
-        shading: { type: ShadingType.CLEAR, fill: "EDEDED" },
+        shading: { type: ShadingType.CLEAR, fill: TINT },
         verticalAlign: VerticalAlign.CENTER,
         margins: { top: 100, bottom: 100, left: 150, right: 150 },
         children: [new Paragraph({ children: [new TextRun({ text: label, font: FONT, bold: true, size: BODY_SIZE })] })],
@@ -106,14 +122,39 @@ function figureParagraph(fig, caption) {
   return [
     new Paragraph({
       alignment: AlignmentType.CENTER,
-      spacing: { before: 200, after: 100 },
+      spacing: { before: 200, after: 140 },
       children: [new ImageRun({ type: "png", data: fig.data, transformation: { width: fig.width, height: fig.height } })],
     }),
-    new Paragraph({
+    // Caption rendered as a tinted callout box with a left accent bar,
+    // rather than a plain italic line under the image.
+    new Table({
+      width: { size: 78, type: WidthType.PERCENTAGE },
       alignment: AlignmentType.CENTER,
-      spacing: { ...LINE_SPACING, after: 160 },
-      children: [new TextRun({ text: caption, font: FONT, size: 18, italics: true })],
+      borders: {
+        top: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        bottom: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        left: { style: BorderStyle.SINGLE, size: 24, color: SECONDARY },
+        insideHorizontal: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+        insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      },
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              shading: { type: ShadingType.CLEAR, fill: TINT },
+              margins: { top: 100, bottom: 100, left: 180, right: 180 },
+              children: [new Paragraph({
+                alignment: AlignmentType.CENTER,
+                spacing: { ...LINE_SPACING, after: 0 },
+                children: [new TextRun({ text: caption, font: FONT, size: 18, italics: true, color: "2F4F3F" })],
+              })],
+            }),
+          ],
+        }),
+      ],
     }),
+    new Paragraph({ spacing: { after: 180 }, children: [] }),
   ];
 }
 
@@ -124,12 +165,12 @@ const coverPage = [
   new Paragraph({ spacing: { before: 400 }, children: [] }),
   new Paragraph({
     alignment: AlignmentType.CENTER,
-    children: [new TextRun({ text: "LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY", font: FONT, bold: true, size: 30, color: "1F3864" })],
+    children: [new TextRun({ text: "LIMKOKWING UNIVERSITY OF CREATIVE TECHNOLOGY", font: FONT, bold: true, size: 30, color: PRIMARY })],
   }),
   new Paragraph({
     alignment: AlignmentType.CENTER,
     spacing: { after: 60 },
-    children: [new TextRun({ text: "SIERRA LEONE", font: FONT, bold: true, size: 24, color: "1F3864" })],
+    children: [new TextRun({ text: "SIERRA LEONE", font: FONT, bold: true, size: 24, color: PRIMARY })],
   }),
   new Paragraph({
     alignment: AlignmentType.CENTER,
@@ -155,19 +196,19 @@ const coverPage = [
   new Paragraph({
     alignment: AlignmentType.CENTER,
     spacing: { after: 500 },
-    children: [new TextRun({ text: "Project: EduLink SL — Education Access and Resource Link System", font: FONT, italics: true, size: 24, color: "2E5395" })],
+    children: [new TextRun({ text: "Project: EduLink SL — Education Access and Resource Link System", font: FONT, italics: true, size: 24, color: SECONDARY })],
   }),
   new Paragraph({ spacing: { before: 600 }, children: [] }),
   new Table({
     width: { size: 80, type: WidthType.PERCENTAGE },
     alignment: AlignmentType.CENTER,
     borders: {
-      top: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-      bottom: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-      left: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-      right: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-      insideHorizontal: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-      insideVertical: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
+      top: { style: BorderStyle.SINGLE, size: 10, color: SECONDARY },
+      bottom: { style: BorderStyle.SINGLE, size: 10, color: SECONDARY },
+      left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 2, color: BORDER },
+      insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
     },
     rows: [
       labelValueRow("Student Name:", "Alieu Kamara"),
@@ -317,8 +358,8 @@ const flowchartSection = [
   h1("4. Flowchart"),
   body("The flowcharts below are the visual equivalent of the pseudocode in Section 3, built in diagrams.net (Draw.io) -- one of the flowcharting tools named in the assignment brief. To keep every box and label legible when printed, the system is shown as one simple overview diagram (Figure 1) plus one full-page diagram per module (Figures 2-5), rather than a single diagram with all branches combined. The source file (diagrams/EduLink.drawio, containing all five diagrams as separate pages) is included in the project's GitHub repository and can be opened and edited directly at https://app.diagrams.net (File > Open From > Device)."),
   body("The same logic was additionally rebuilt as an executable flowchart in Flowgorithm (diagrams/EduLink.fprg, also in the repository), with each module as its own linked flowchart using Flowgorithm's Declare, Input, Output, If, While, For, and Call symbols. Because Flowgorithm has no record/struct data type, each learning centre's details are represented as parallel arrays (centerName, centerTutorOnDuty, centerOpenSeats, centerPastPaperStock) rather than the LearningCenter record shown in Section 3 -- the decision and repetition logic is otherwise identical. This version can be run directly to produce the sample outputs in Section 6.", { italics: true }),
-  body("Insert a screenshot of the Flowgorithm flowchart below before printing.", { italics: true, color: "A05A00" }),
-  new Paragraph({ spacing: { before: 100, after: 200 }, children: [new TextRun({ text: "[ Insert Flowgorithm screenshot here ]", font: FONT, size: BODY_SIZE, italics: true, color: "888888" })] }),
+  body("Insert a screenshot of the Flowgorithm flowchart below before printing.", { italics: true, color: ACCENT }),
+  new Paragraph({ spacing: { before: 100, after: 200 }, children: [new TextRun({ text: "[ Insert Flowgorithm screenshot here ]", font: FONT, size: BODY_SIZE, italics: true, color: MUTED })] }),
   pageBreak(),
 
   h2("Figure 1 — System Overview"),
@@ -345,13 +386,23 @@ const flowchartSection = [
 // ========================================================================
 // 5. FUNCTIONAL MODULES
 // ========================================================================
-function moduleRow(name, purpose, inputs, outputs) {
+// rowIndex (0-based, counting only data rows, i.e. excluding the header) is
+// used to band every other row with a light tint instead of drawing a full
+// grid of vertical/horizontal borders — a "minimal/banded" table style.
+function moduleRow(name, purpose, inputs, outputs, rowIndex = 0) {
+  const fill = rowIndex % 2 === 1 ? STRIPE : "FFFFFF";
+  const cell = (text, width, bold = false) => new TableCell({
+    width: { size: width, type: WidthType.PERCENTAGE },
+    shading: { type: ShadingType.CLEAR, fill },
+    margins: { top: 90, bottom: 90, left: 120, right: 120 },
+    children: [new Paragraph({ children: [new TextRun({ text, font: FONT, size: 18, bold })] })],
+  });
   return new TableRow({
     children: [
-      new TableCell({ width: { size: 20, type: WidthType.PERCENTAGE }, margins: { top: 80, bottom: 80, left: 100, right: 100 }, children: [new Paragraph({ children: [new TextRun({ text: name, font: FONT, size: 18, bold: true })] })] }),
-      new TableCell({ width: { size: 35, type: WidthType.PERCENTAGE }, margins: { top: 80, bottom: 80, left: 100, right: 100 }, children: [new Paragraph({ children: [new TextRun({ text: purpose, font: FONT, size: 18 })] })] }),
-      new TableCell({ width: { size: 25, type: WidthType.PERCENTAGE }, margins: { top: 80, bottom: 80, left: 100, right: 100 }, children: [new Paragraph({ children: [new TextRun({ text: inputs, font: FONT, size: 18 })] })] }),
-      new TableCell({ width: { size: 20, type: WidthType.PERCENTAGE }, margins: { top: 80, bottom: 80, left: 100, right: 100 }, children: [new Paragraph({ children: [new TextRun({ text: outputs, font: FONT, size: 18 })] })] }),
+      cell(name, 20, true),
+      cell(purpose, 35),
+      cell(inputs, 25),
+      cell(outputs, 20),
     ],
   });
 }
@@ -360,8 +411,8 @@ function headerRow(cells) {
   return new TableRow({
     tableHeader: true,
     children: cells.map((t) => new TableCell({
-      shading: { type: ShadingType.CLEAR, fill: "1F3864" },
-      margins: { top: 80, bottom: 80, left: 100, right: 100 },
+      shading: { type: ShadingType.CLEAR, fill: SECONDARY },
+      margins: { top: 90, bottom: 90, left: 120, right: 120 },
       children: [new Paragraph({ children: [new TextRun({ text: t, font: FONT, size: 18, bold: true, color: "FFFFFF" })] })],
     })),
   });
@@ -370,24 +421,24 @@ function headerRow(cells) {
 const modulesTable = new Table({
   width: { size: 100, type: WidthType.PERCENTAGE },
   borders: {
-    top: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-    bottom: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-    left: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-    right: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-    insideHorizontal: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-    insideVertical: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
+    top: { style: BorderStyle.SINGLE, size: 10, color: SECONDARY },
+    bottom: { style: BorderStyle.SINGLE, size: 10, color: SECONDARY },
+    left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    insideHorizontal: { style: BorderStyle.SINGLE, size: 2, color: BORDER },
+    insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
   },
   rows: [
     headerRow(["Module", "Purpose", "Inputs", "Outputs"]),
-    moduleRow("mainMenu()", "Displays the menu and routes the user's choice.", "userChoice", "Calls routeRequest()"),
-    moduleRow("routeRequest(choice)", "Decision structure that calls the correct module for the selected option.", "choice", "Module call"),
-    moduleRow("checkTutorAvailability()", "Searches outward for a centre with a tutor on duty and an open seat.", "studentLocation, subjectNeeded", "List of available centres"),
-    moduleRow("checkMaterialStock()", "Searches nearby centres' stock records for a named study material.", "studentLocation, materialName", "List of centres with stock"),
-    moduleRow("bookTutoringSession()", "Registers the student if needed and books a confirmed seat.", "studentPhone, centerID, date", "Booking confirmation / SMS"),
-    moduleRow("reportDisruption()", "Flags disruption keywords and searches outward for the nearest staffed centre.", "studentLocation, disruptionDescription", "Redirect message / DEO contact"),
-    moduleRow("registerStudent()", "Creates a new student record.", "name, age, phone, location", "studentID"),
-    moduleRow("sendNotification(phone, msg)", "Sends a confirmation or alert SMS.", "phone, message", "SMS sent"),
-    moduleRow("logInteraction()", "Stores each session's outcome for reporting.", "choice, outcome, timestamp", "Log entry"),
+    moduleRow("mainMenu()", "Displays the menu and routes the user's choice.", "userChoice", "Calls routeRequest()", 0),
+    moduleRow("routeRequest(choice)", "Decision structure that calls the correct module for the selected option.", "choice", "Module call", 1),
+    moduleRow("checkTutorAvailability()", "Searches outward for a centre with a tutor on duty and an open seat.", "studentLocation, subjectNeeded", "List of available centres", 2),
+    moduleRow("checkMaterialStock()", "Searches nearby centres' stock records for a named study material.", "studentLocation, materialName", "List of centres with stock", 3),
+    moduleRow("bookTutoringSession()", "Registers the student if needed and books a confirmed seat.", "studentPhone, centerID, date", "Booking confirmation / SMS", 4),
+    moduleRow("reportDisruption()", "Flags disruption keywords and searches outward for the nearest staffed centre.", "studentLocation, disruptionDescription", "Redirect message / DEO contact", 5),
+    moduleRow("registerStudent()", "Creates a new student record.", "name, age, phone, location", "studentID", 6),
+    moduleRow("sendNotification(phone, msg)", "Sends a confirmation or alert SMS.", "phone, message", "SMS sent", 7),
+    moduleRow("logInteraction()", "Stores each session's outcome for reporting.", "choice, outcome, timestamp", "Log entry", 8),
   ],
 });
 
@@ -404,20 +455,20 @@ const modulesSection = [
 const sampleDataTable = new Table({
   width: { size: 100, type: WidthType.PERCENTAGE },
   borders: {
-    top: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-    bottom: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-    left: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-    right: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-    insideHorizontal: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
-    insideVertical: { style: BorderStyle.SINGLE, size: 2, color: "AAAAAA" },
+    top: { style: BorderStyle.SINGLE, size: 10, color: SECONDARY },
+    bottom: { style: BorderStyle.SINGLE, size: 10, color: SECONDARY },
+    left: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    right: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
+    insideHorizontal: { style: BorderStyle.SINGLE, size: 2, color: BORDER },
+    insideVertical: { style: BorderStyle.NONE, size: 0, color: "FFFFFF" },
   },
   rows: [
     headerRow(["#", "Learning Centre", "Tutor on duty", "Open seats", "Past paper stock"]),
-    moduleRow("1", "Njala Community School", "Yes", "0", "0"),
-    moduleRow("2", "Gondama Learning Hub", "Yes", "4", "0"),
-    moduleRow("3", "Kenema Secondary Resource Center", "Yes", "6", "15"),
-    moduleRow("4", "Bo Community Learning Center", "No", "3", "0"),
-    moduleRow("5", "Serabu Education Point", "No", "0", "8"),
+    moduleRow("1", "Njala Community School", "Yes", "0", "0", 0),
+    moduleRow("2", "Gondama Learning Hub", "Yes", "4", "0", 1),
+    moduleRow("3", "Kenema Secondary Resource Center", "Yes", "6", "15", 2),
+    moduleRow("4", "Bo Community Learning Center", "No", "3", "0", 3),
+    moduleRow("5", "Serabu Education Point", "No", "0", "8", 4),
   ],
 });
 
@@ -457,11 +508,11 @@ const scenariosSection = [
 const githubSection = [
   h1("7. GitHub Repository Evidence"),
   body("This project's report, pseudocode, and flowchart source (both the diagrams.net/Draw.io file behind the five figures in Section 4, EduLink.drawio, and the runnable Flowgorithm program, EduLink.fprg) are version-controlled in a GitHub repository named using the required convention PROG101_Assignment1_StudentName_StudentID. The repository contains a README.md describing the project, the pseudocode file, the flowchart source files, and this report, with regular commits made during development."),
-  body("Repository URL: [Insert GitHub repository URL once the repository has been created and pushed]", { bold: true, italics: true, color: "A05A00" }),
-  body("Insert a screenshot of the repository's file listing below before printing.", { italics: true, color: "A05A00" }),
-  new Paragraph({ spacing: { before: 100, after: 200 }, children: [new TextRun({ text: "[ Insert repository file-listing screenshot here ]", font: FONT, size: BODY_SIZE, italics: true, color: "888888" })] }),
-  body("Insert a screenshot of the commit history below before printing.", { italics: true, color: "A05A00" }),
-  new Paragraph({ spacing: { before: 100, after: 200 }, children: [new TextRun({ text: "[ Insert commit-history screenshot here ]", font: FONT, size: BODY_SIZE, italics: true, color: "888888" })] }),
+  body("Repository URL: [Insert GitHub repository URL once the repository has been created and pushed]", { bold: true, italics: true, color: ACCENT }),
+  body("Insert a screenshot of the repository's file listing below before printing.", { italics: true, color: ACCENT }),
+  new Paragraph({ spacing: { before: 100, after: 200 }, children: [new TextRun({ text: "[ Insert repository file-listing screenshot here ]", font: FONT, size: BODY_SIZE, italics: true, color: MUTED })] }),
+  body("Insert a screenshot of the commit history below before printing.", { italics: true, color: ACCENT }),
+  new Paragraph({ spacing: { before: 100, after: 200 }, children: [new TextRun({ text: "[ Insert commit-history screenshot here ]", font: FONT, size: BODY_SIZE, italics: true, color: MUTED })] }),
   pageBreak(),
 ];
 
@@ -504,7 +555,7 @@ const doc = new Document({
         default: new Header({
           children: [new Paragraph({
             alignment: AlignmentType.RIGHT,
-            children: [new TextRun({ text: "PROG101 — EduLink SL Assignment Report", font: FONT, size: 16, color: "888888" })],
+            children: [new TextRun({ text: "PROG101 — EduLink SL Assignment Report", font: FONT, size: 16, color: MUTED })],
           })],
         }),
       },
@@ -513,10 +564,10 @@ const doc = new Document({
           children: [new Paragraph({
             alignment: AlignmentType.CENTER,
             children: [
-              new TextRun({ text: "Page ", font: FONT, size: 16, color: "888888" }),
-              new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 16, color: "888888" }),
-              new TextRun({ text: " of ", font: FONT, size: 16, color: "888888" }),
-              new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FONT, size: 16, color: "888888" }),
+              new TextRun({ text: "Page ", font: FONT, size: 16, color: MUTED }),
+              new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 16, color: MUTED }),
+              new TextRun({ text: " of ", font: FONT, size: 16, color: MUTED }),
+              new TextRun({ children: [PageNumber.TOTAL_PAGES], font: FONT, size: 16, color: MUTED }),
             ],
           })],
         }),
