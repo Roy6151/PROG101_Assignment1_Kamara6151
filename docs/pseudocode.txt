@@ -4,10 +4,10 @@ PSEUDOCODE
 ===========================================================
 
 CONSTANTS
-    MAX_SEARCH_RADIUS_KM = 25
-    RADIUS_STEP_KM = 5
-    DISRUPTION_KEYWORDS = ["flooding", "school closed", "teacher strike",
-                            "no tutor present"]
+    Declare MAX_SEARCH_RADIUS_KM As Integer = 25
+    Declare RADIUS_STEP_KM As Integer = 5
+    Declare DISRUPTION_KEYWORDS As String() = ["flooding", "school closed",
+        "teacher strike", "no tutor present"]
 
 DATA TYPES
     Student
@@ -38,185 +38,185 @@ DATA TYPES
         status    : String
 
 -----------------------------------------------------------
-MODULE mainMenu()
+Function mainMenu()
 -----------------------------------------------------------
-    DISPLAY "1. Check Tutor Availability"
-    DISPLAY "2. Check Study Material Stock"
-    DISPLAY "3. Book Tutoring Session"
-    DISPLAY "4. Report School Disruption"
-    GET userChoice
-    CALL routeRequest(userChoice)
-END MODULE
-
------------------------------------------------------------
-MODULE routeRequest(choice)
------------------------------------------------------------
-    IF choice = 1 THEN
-        CALL checkTutorAvailability()
-    ELSE IF choice = 2 THEN
-        CALL checkMaterialStock()
-    ELSE IF choice = 3 THEN
-        CALL bookTutoringSession()
-    ELSE IF choice = 4 THEN
-        CALL reportDisruption()
-    ELSE
-        DISPLAY "Invalid option, please try again"
-        CALL mainMenu()
-    END IF
-END MODULE
+    Display "1. Check Tutor Availability"
+    Display "2. Check Study Material Stock"
+    Display "3. Book Tutoring Session"
+    Display "4. Report School Disruption"
+    Input userChoice
+    Call routeRequest(userChoice)
+End Function
 
 -----------------------------------------------------------
-MODULE checkTutorAvailability()
+Function routeRequest(choice)
 -----------------------------------------------------------
-    GET studentLocation
-    GET subjectNeeded
-    SET radius = RADIUS_STEP_KM
-    SET found = FALSE
-
-    WHILE (found = FALSE) AND (radius <= MAX_SEARCH_RADIUS_KM) DO
-        SET nearbyCenters = findCentersWithin(studentLocation, radius)
-        FOR EACH center IN nearbyCenters DO
-            IF center.tutorOnDuty = TRUE AND center.tutorSubject = subjectNeeded
-               AND center.openSeats > 0 THEN
-                DISPLAY center.name + " - " + center.openSeats + " seat(s) available"
-                SET found = TRUE
-            END IF
-        END FOR
-        IF found = FALSE THEN
-            SET radius = radius + RADIUS_STEP_KM
-        END IF
-    END WHILE
-
-    IF found = FALSE THEN
-        DISPLAY "No tutor availability found within " + MAX_SEARCH_RADIUS_KM + " km"
-    END IF
-    CALL logInteraction()
-END MODULE
+    If choice = 1 Then
+        Call checkTutorAvailability()
+    Else If choice = 2 Then
+        Call checkMaterialStock()
+    Else If choice = 3 Then
+        Call bookTutoringSession()
+    Else If choice = 4 Then
+        Call reportDisruption()
+    Else
+        Display "Invalid option, please try again"
+        Call mainMenu()
+    End If
+End Function
 
 -----------------------------------------------------------
-MODULE checkMaterialStock()
+Function checkTutorAvailability()
 -----------------------------------------------------------
-    GET studentLocation
-    GET materialName
-    SET nearbyCenters = findCentersWithin(studentLocation, MAX_SEARCH_RADIUS_KM)
-    SET resultsFound = FALSE
+    Input studentLocation
+    Input subjectNeeded
+    Set radius = RADIUS_STEP_KM
+    Set found = false
 
-    FOR EACH center IN nearbyCenters DO
-        FOR EACH record IN center.materialStock DO
-            IF record.materialName = materialName AND record.quantity > 0 THEN
-                DISPLAY center.name + " has " + record.quantity + " copies of " + materialName
-                SET resultsFound = TRUE
-            END IF
-        END FOR
-    END FOR
+    While (found = false) And (radius <= MAX_SEARCH_RADIUS_KM)
+        Set nearbyCenters = findCentersWithin(studentLocation, radius)
+        For Each center In nearbyCenters
+            If center.tutorOnDuty = true And center.tutorSubject = subjectNeeded
+               And center.openSeats > 0 Then
+                Display center.name & " - " & center.openSeats & " seat(s) available"
+                Set found = true
+            End If
+        End For
+        If found = false Then
+            Set radius = radius + RADIUS_STEP_KM
+        End If
+    End While
 
-    IF resultsFound = FALSE THEN
-        DISPLAY materialName + " not currently in stock nearby"
-    END IF
-    CALL logInteraction()
-END MODULE
-
------------------------------------------------------------
-MODULE bookTutoringSession()
------------------------------------------------------------
-    GET studentPhone
-    SET student = findStudentByPhone(studentPhone)
-
-    IF student = NULL THEN
-        CALL registerStudent()
-        SET student = findStudentByPhone(studentPhone)
-    END IF
-
-    GET preferredCenterID, preferredDate
-    SET center = findCenterByID(preferredCenterID)
-
-    IF center.openSeats > 0 THEN
-        SET newSession.sessionID = generateID()
-        SET newSession.studentID = student.studentID
-        SET newSession.centerID = center.centerID
-        SET newSession.date = preferredDate
-        SET newSession.status = "Confirmed"
-        SET center.openSeats = center.openSeats - 1
-        CALL sendNotification(student.phone,
-             "Tutoring session confirmed at " + center.name + " on " + preferredDate)
-    ELSE
-        DISPLAY "No seats available on that date. Suggesting next available date..."
-        CALL suggestNextAvailable(center)
-    END IF
-    CALL logInteraction()
-END MODULE
+    If found = false Then
+        Display "No tutor availability found within " & MAX_SEARCH_RADIUS_KM & " km"
+    End If
+    Call logInteraction()
+End Function
 
 -----------------------------------------------------------
-MODULE reportDisruption()
+Function checkMaterialStock()
 -----------------------------------------------------------
-    GET studentLocation, disruptionDescription
-    SET isDisruption = FALSE
+    Input studentLocation
+    Input materialName
+    Set nearbyCenters = findCentersWithin(studentLocation, MAX_SEARCH_RADIUS_KM)
+    Set resultsFound = false
 
-    FOR EACH keyword IN DISRUPTION_KEYWORDS DO
-        IF disruptionDescription CONTAINS keyword THEN
-            SET isDisruption = TRUE
-        END IF
-    END FOR
+    For Each center In nearbyCenters
+        For Each record In center.materialStock
+            If record.materialName = materialName And record.quantity > 0 Then
+                Display center.name & " has " & record.quantity & " copies of " & materialName
+                Set resultsFound = true
+            End If
+        End For
+    End For
 
-    IF isDisruption = TRUE THEN
-        SET radius = RADIUS_STEP_KM
-        SET found = FALSE
-
-        WHILE (found = FALSE) AND (radius <= MAX_SEARCH_RADIUS_KM) DO
-            SET nearbyCenters = findCentersWithin(studentLocation, radius)
-            FOR EACH center IN nearbyCenters DO
-                IF center.tutorOnDuty = TRUE THEN
-                    DISPLAY "REDIRECT: Nearest open center is " + center.name
-                    CALL sendNotification(center.phone,
-                         "Incoming redirected student from " + studentLocation)
-                    SET found = TRUE
-                END IF
-            END FOR
-            IF found = FALSE THEN
-                SET radius = radius + RADIUS_STEP_KM
-            END IF
-        END WHILE
-
-        IF found = FALSE THEN
-            DISPLAY "No open learning center found. Contact District Education Office."
-        END IF
-    ELSE
-        DISPLAY "No disruption keyword detected. Redirecting to Book Tutoring Session."
-        CALL bookTutoringSession()
-    END IF
-    CALL logInteraction()
-END MODULE
+    If resultsFound = false Then
+        Display materialName & " not currently in stock nearby"
+    End If
+    Call logInteraction()
+End Function
 
 -----------------------------------------------------------
-MODULE registerStudent()
+Function bookTutoringSession()
 -----------------------------------------------------------
-    GET name, age, phone, location
-    SET newStudent.studentID = generateID()
-    SET newStudent.name = name
-    SET newStudent.age = age
-    SET newStudent.phone = phone
-    SET newStudent.location = location
-    STORE newStudent
-    DISPLAY "Registration successful"
-END MODULE
+    Input studentPhone
+    Set student = findStudentByPhone(studentPhone)
+
+    If student = null Then
+        Call registerStudent()
+        Set student = findStudentByPhone(studentPhone)
+    End If
+
+    Input preferredCenterID, preferredDate
+    Set center = findCenterByID(preferredCenterID)
+
+    If center.openSeats > 0 Then
+        Set newSession.sessionID = generateID()
+        Set newSession.studentID = student.studentID
+        Set newSession.centerID = center.centerID
+        Set newSession.date = preferredDate
+        Set newSession.status = "Confirmed"
+        Set center.openSeats = center.openSeats - 1
+        Call sendNotification(student.phone,
+             "Tutoring session confirmed at " & center.name & " on " & preferredDate)
+    Else
+        Display "No seats available on that date. Suggesting next available date..."
+        Call suggestNextAvailable(center)
+    End If
+    Call logInteraction()
+End Function
 
 -----------------------------------------------------------
-MODULE sendNotification(phone, message)
+Function reportDisruption()
 -----------------------------------------------------------
-    SEND SMS TO phone WITH message
-END MODULE
+    Input studentLocation, disruptionDescription
+    Set isDisruption = false
+
+    For Each keyword In DISRUPTION_KEYWORDS
+        If disruptionDescription Contains keyword Then
+            Set isDisruption = true
+        End If
+    End For
+
+    If isDisruption = true Then
+        Set radius = RADIUS_STEP_KM
+        Set found = false
+
+        While (found = false) And (radius <= MAX_SEARCH_RADIUS_KM)
+            Set nearbyCenters = findCentersWithin(studentLocation, radius)
+            For Each center In nearbyCenters
+                If center.tutorOnDuty = true Then
+                    Display "REDIRECT: Nearest open center is " & center.name
+                    Call sendNotification(center.phone,
+                         "Incoming redirected student from " & studentLocation)
+                    Set found = true
+                End If
+            End For
+            If found = false Then
+                Set radius = radius + RADIUS_STEP_KM
+            End If
+        End While
+
+        If found = false Then
+            Display "No open learning center found. Contact District Education Office."
+        End If
+    Else
+        Display "No disruption keyword detected. Redirecting to Book Tutoring Session."
+        Call bookTutoringSession()
+    End If
+    Call logInteraction()
+End Function
 
 -----------------------------------------------------------
-MODULE logInteraction()
+Function registerStudent()
 -----------------------------------------------------------
-    STORE timestamp, userChoice, outcome IN interactionLog
+    Input name, age, phone, location
+    Set newStudent.studentID = generateID()
+    Set newStudent.name = name
+    Set newStudent.age = age
+    Set newStudent.phone = phone
+    Set newStudent.location = location
+    Store newStudent
+    Display "Registration successful"
+End Function
+
+-----------------------------------------------------------
+Function sendNotification(phone, message)
+-----------------------------------------------------------
+    Send SMS To phone With message
+End Function
+
+-----------------------------------------------------------
+Function logInteraction()
+-----------------------------------------------------------
+    Store timestamp, userChoice, outcome In interactionLog
     (used later for District Education Office reporting and resource planning)
-END MODULE
+End Function
 
 -----------------------------------------------------------
-MAIN
+Main
 -----------------------------------------------------------
-START
-    CALL mainMenu()
-END
+Program
+    Call mainMenu()
+End Program
 ===========================================================

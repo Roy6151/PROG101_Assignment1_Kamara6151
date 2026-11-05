@@ -42,7 +42,8 @@ elimination of rural/urban disparities).
 | Path | Description |
 |---|---|
 | `docs/EduLink_Assignment_Report.docx` | Full assignment report: rationale, algorithm, pseudocode, flowchart, modules, sample outputs, SDG/Open Source/DPG justification, references |
-| `docs/pseudocode.txt` | Pseudocode for all system modules (plain text) |
+| `docs/pseudocode.txt` | Pseudocode for all system modules, written in Flowgorithm-style keywords (Declare/Set/Display/Input/Call, If-Then-End If, While-End While, For-End For) |
+| `diagrams/pseudocode_part1_editor.png` … `part4_editor.png` | Code-editor screenshots of `docs/pseudocode.txt`, inserted as Section 3 of the report |
 | `diagrams/EduLink.drawio` | **Flowchart built in diagrams.net (Draw.io)** — one of the three flowcharting tools named in the assignment brief. Contains all five diagrams below as separate pages/tabs in one file. Open it free at https://app.diagrams.net (File > Open From > Device) to view or edit |
 | `diagrams/fig1_drawio.png` … `fig5_drawio.png` | Rendered PNG export of each Draw.io page (same five, used in the report) — one overview diagram (Figure 1) plus one full-page diagram per module (Figures 2-5), split up so every box and label stays legible when printed |
 | `diagrams/EduLink.fprg` | **Runnable flowchart built in Flowgorithm** — open directly in the Flowgorithm app and press Run to reproduce the Section 6 sample outputs |
